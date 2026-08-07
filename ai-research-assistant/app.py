@@ -1,26 +1,38 @@
-from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage
 
-from config import llm
-from tools.search import search_web
+from graph.builder import graph
 
 
-agent = create_react_agent(
-    model=llm,
-    tools=[search_web]
-)
+config = {
+    "configurable": {
+        "thread_id": "research-session"
+    }
+}
 
 
-if __name__ == "__main__":
+print("=" * 50)
+print("AI Research Assistant")
+print("Type 'exit' to quit.")
+print("=" * 50)
 
-    response = agent.invoke(
+
+while True:
+
+    query = input("\nYou: ")
+
+    if query.lower() in ["exit", "quit", "bye"]:
+        print("\nAssistant: Goodbye!")
+        break
+
+    response = graph.invoke(
         {
             "messages": [
-                HumanMessage(
-                    content="What are today's biggest AI news stories?"
-                )
+                HumanMessage(content=query)
             ]
-        }
+        },
+        config=config
     )
+
+    print("\nAssistant:")
 
     print(response["messages"][-1].content)

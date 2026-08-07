@@ -1,5 +1,6 @@
 from langgraph.graph import StateGraph
 from langgraph.graph import START, END
+from langgraph.checkpoint.memory import MemorySaver
 
 from graph.state import ResearchState
 from graph.nodes import assistant_node, tool_node
@@ -17,6 +18,12 @@ builder.add_conditional_edges(
     tools_condition,
 )
 
-builder.add_edge("tools", "assistant")
+builder.add_edge(
+    "tools",
+    "assistant"
+)
 
-graph = builder.compile()
+memory = MemorySaver()
+
+
+graph = builder.compile(checkpointer=memory)
