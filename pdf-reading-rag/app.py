@@ -1,15 +1,14 @@
 from loader import load_pdf
+from splitter import split_documents
 
 if __name__ == "__main__":
     docs = load_pdf("sample.pdf")
+    chunks = split_documents(docs)
 
-    print(f"Loaded {len(docs)} documents\n")
+    print(f"Pages: {len(docs)}")
+    print(f"Chunks: {len(chunks)}\n")
 
-    print("First document preview:\n")
-    print(docs[0].page_content[:500])
-    print("\nMetadata:", docs[0].metadata)
+    print("First chunk:\n")
+    print(chunks[0].page_content)
 
-for i, doc in enumerate(docs[:3]):
-    print(f"\n--- Document {i} ---")
-    print(doc.page_content[:200])
-    print(doc.metadata)
+    print("\nMetadata:", chunks[0].metadata)
