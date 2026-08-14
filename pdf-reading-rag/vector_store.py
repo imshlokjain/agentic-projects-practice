@@ -1,11 +1,16 @@
+from pathlib import Path
+
 from langchain_chroma import Chroma
 
 
+BASE_DIR = Path(__file__).resolve().parent
+
 COLLECTION_NAME = "pdf-rag"
-PERSIST_DIRECTORY = "./chroma_db"
+PERSIST_DIRECTORY = str(BASE_DIR / "chroma_db")
 
 
 def create_vector_store(chunks, embeddings):
+
     vector_store = Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
@@ -17,6 +22,7 @@ def create_vector_store(chunks, embeddings):
 
 
 def load_vector_store(embeddings):
+
     vector_store = Chroma(
         collection_name=COLLECTION_NAME,
         embedding_function=embeddings,
