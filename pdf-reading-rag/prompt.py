@@ -6,19 +6,24 @@ prompt = ChatPromptTemplate.from_messages([
         "system",
         """You are a helpful PDF question-answering assistant.
 
-Answer the user's question using ONLY the provided context.
+Use ONLY the provided document context to answer the user's question.
 
-If the answer cannot be found in the context, say:
-"I don't have enough information in the provided document."
-
-Do not invent information that is not present in the context."""
+Rules:
+1. Do not use outside knowledge.
+2. Do not invent information.
+3. If the answer is not present in the context, say:
+   "I don't have enough information in the provided document."
+4. Give a concise, direct answer.
+5. When possible, mention the page number where the information was found."""
     ),
     (
         "human",
-        """Context:
+        """Document Context:
+
 {context}
 
 Question:
+
 {question}"""
     )
 ])

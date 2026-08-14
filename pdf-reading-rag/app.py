@@ -3,12 +3,13 @@ from vector_store import load_vector_store
 from retriever import create_retriever
 from llm import llm
 from prompt import prompt
+from sources import format_sources
 
 
 if __name__ == "__main__":
 
     # -------------------------
-    # LOAD EXISTING RAG INDEX
+    # LOAD EXISTING VECTOR DB
     # -------------------------
 
     embeddings = create_embedding_model()
@@ -26,10 +27,6 @@ if __name__ == "__main__":
     print("Type 'exit' to quit.")
     print("=" * 50)
 
-    # -------------------------
-    # CHAT LOOP
-    # -------------------------
-
     while True:
 
         question = input("\nYou: ")
@@ -38,23 +35,84 @@ if __name__ == "__main__":
             print("\nAssistant: Goodbye!")
             break
 
-        # Retrieve relevant PDF chunks
+        # -------------------------
+        # RETRIEVAL
+        # -------------------------
+
         documents = retriever.invoke(question)
 
-        # Convert Documents → context
-        context = "\n\n".join(
-            doc.page_content
-            for doc in documents
+        print("\n[Retrieved Documents]")
+        print(f"Number of chunks: {len(documents)}")
+
+        for i, doc in enumerate(documents):
+
+            print(f"\n--- Chunk {i + 1} ---")
+            print("Metadata:", doc.metadata)
+            print("Content:")
+            print(doc.page_content)
+
+        # -------------------------
+        # BUILD CONTEXT
+        # -------------------------
+
+        context_parts = []
+
+        for doc in documents:
+
+            source = doc.metadata.get(
+                "source",
+                "Unknown"
+            )
+
+            page = doc.metadata.get(
+                "page",
+                "Unknown"
+            )
+
+            context_parts.append(
+                f"""Source: {source}
+Page: {page}
+
+{doc.page_content}"""
+            )
+
+        context = "\n\n---\n\n".join(
+            context_parts
         )
 
-        # Build prompt
+        # -------------------------
+        # BUILD PROMPT
+        # -------------------------
+
         messages = prompt.invoke({
             "context": context,
             "question": question
         })
 
-        # Generate answer using Project 1's LLM
-        response = llm.invoke(messages)
+        # -------------------------
+        # GENERATE ANSWER
+        # -------------------------
+
+        response = llm.invoke(
+            messages
+        )
+
+        # -------------------------
+        # DISPLAY ANSWER
+        # -------------------------
 
         print("\nAssistant:")
         print(response.content)
+
+        # -------------------------
+        # DISPLAY SOURCES
+        # -------------------------
+
+        sources = format_sources(
+            documents
+        )
+
+        print("\nSources:")
+
+        for source in sources:
+            print(f"- {source}")
