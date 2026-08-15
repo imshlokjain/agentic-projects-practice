@@ -98,36 +98,35 @@ if __name__ == "__main__":
         # 8. RETRIEVE RELEVANT DOCUMENTS
         # ==================================================
 
-        documents = retriever.invoke(
-            retrieval_question
+        results = vector_store.similarity_search_with_relevance_scores(
+            retrieval_question,
+            k=3
         )
 
 
         # ==================================================
-        # 9. DEBUG: DISPLAY RETRIEVED DOCUMENTS
+        # 9. FILTER BY RELEVANCE
         # ==================================================
 
-        print("\n[Retrieved Documents]")
-        print(
-            f"Number of chunks: {len(documents)}"
-        )
+        score_threshold = 0.5
 
-        for i, doc in enumerate(documents):
+        documents = []
 
-            print(
-                f"\n--- Chunk {i + 1} ---"
-            )
+        for doc, score in results:
 
             print(
-                "Metadata:",
-                doc.metadata
+                f"\nSimilarity score: {score:.4f}"
             )
 
-            print("Content:")
+            if score >= score_threshold:
 
-            print(
-                doc.page_content
-            )
+                documents.append(doc)
+
+                print("Status: KEPT")
+
+            else:
+
+                print("Status: DISCARDED")
 
 
         # ==================================================
